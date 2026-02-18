@@ -8,6 +8,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
 @Service
@@ -50,6 +51,29 @@ public class ProductService {
     }
 
     public List<ProductResponse> getAllProduct() {
-        return productRepository.findAll().stream().map(this::mapToProductResponse).collect(Collectors.toList());
+        return productRepository.findByActiveTrue().stream().map(this::mapToProductResponse).collect(Collectors.toList());
+    }
+
+    public Optional<ProductResponse> updateProduct(Long id, ProductRequest productRequest) {
+       return productRepository.findById(id).map(existingProduct -> {
+            updateProductFromRequest(existingProduct,productRequest);
+           Product savedProduct =  productRepository.save(existingProduct);
+           return mapToProductResponse(savedProduct);
+        });
+    }
+
+    public boolean deleteUser(Long id) {
+        return productRepository.findById(id).map(product -> {
+            product.setActive(false);
+            productRepository.save(product);
+            return true;
+        }).orElse(false);
+    }
+
+    public List<ProductResponse> searchProducts(String searchText) {
+        return productRepository.findByActiveTrue().stream().filter(x -> {
+            return x.getName() != null && x.getName().toLowerCase().contains(searchText.toLowerCase());
+        }).map(this::mapToProductResponse).collect(Collectors.toList());
+
     }
 }

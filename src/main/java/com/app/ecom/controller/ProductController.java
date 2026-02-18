@@ -27,4 +27,24 @@ private final ProductService productService;
         return new ResponseEntity<ProductResponse>(productService.createProduct(productRequest), HttpStatus.CREATED);
     }
 
+    @PutMapping("updateproduct/{id}")
+    public ResponseEntity<ProductResponse> updateProduct(@PathVariable Long id, @RequestBody ProductRequest productRequest){
+        return productService.updateProduct(id,productRequest)
+                .map(ResponseEntity::ok)
+                .orElseGet(() -> ResponseEntity.notFound().build());
+
+    }
+
+    @DeleteMapping("deleteproduct/{id}")
+    public ResponseEntity<Boolean> deleteProduct(@PathVariable Long id){
+        boolean deleted = productService.deleteUser(id);
+       return deleted ? ResponseEntity.noContent().build(): ResponseEntity.notFound().build();
+    }
+    @GetMapping("search")
+    public ResponseEntity<List<ProductResponse>> searchProduct(@RequestParam String searchText){
+    return  ResponseEntity.ok(productService.searchProducts(searchText));
+    }
+
+
+
 }
